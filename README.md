@@ -1,6 +1,6 @@
 ##THE COURSE
 
-[Full stack open](https://fullstackopen.com/en/). is a course maintained by the University of Helsinki, a Finnish institution. In this repo you can find my solutions for the exercises presented in the course.
+[Full stack open](https://fullstackopen.com/en/) is a course maintained by the University of Helsinki, a Finnish institution. In this repo you can find my solutions for the exercises presented in the course.
 
 ##ABOUT
 
