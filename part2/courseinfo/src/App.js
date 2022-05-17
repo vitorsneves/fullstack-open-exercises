@@ -1,9 +1,9 @@
 import Course from "./components/Course";
 
-const App = () => {
-  const course = {
-    id: 1,
+const courses = [
+  {
     name: "Half Stack application development",
+    id: 1,
     parts: [
       {
         name: "Fundamentals of React",
@@ -21,19 +21,39 @@ const App = () => {
         id: 3,
       },
       {
-        name: "State of a",
-        exercises: 9,
+        name: "Redux",
+        exercises: 11,
         id: 4,
       },
+    ],
+  },
+  {
+    name: "Node.js",
+    id: 2,
+    parts: [
       {
-        name: "component",
-        exercises: 10,
-        id: 5,
+        name: "Routing",
+        exercises: 3,
+        id: 1,
+      },
+      {
+        name: "Middlewares",
+        exercises: 7,
+        id: 2,
       },
     ],
-  };
+  },
+];
 
-  return <Course course={course} />;
+const App = () => {
+  return (
+    <>
+      <h1>Web development curriculum</h1>
+      {courses.map((course) => (
+        <Course course={course} key={course.id} />
+      ))}
+    </>
+  );
 };
 
 export default App;
