@@ -1,4 +1,5 @@
 import CountryDetails from "./CountryDetails";
+import CountryItem from "./CountryItem";
 
 const CountriesDisplay = ({ countries }) => {
   if (countries.length > 10) {
@@ -9,7 +10,7 @@ const CountriesDisplay = ({ countries }) => {
     return (
       <ul>
         {countries.map((country) => (
-          <li key={country.id}>{country.name}</li>
+          <CountryItem country={country} key={country.id} />
         ))}
       </ul>
     );
