@@ -12,6 +12,8 @@ const getAll = async () => {
     area: country.area,
     flag: country.flags.svg,
     id: country.name.official,
+    latitude: country.latlng[0],
+    longitude: country.latlng[1],
   }));
 
   return countries;

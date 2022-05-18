@@ -1,3 +1,5 @@
+import WatherDetails from "./WeatherDetails";
+
 const CountryDetails = ({ country }) => {
   return (
     <>
@@ -11,6 +13,7 @@ const CountryDetails = ({ country }) => {
         ))}
       </ul>
       <img src={country.flag} style={{ height: 100 }} />
+      <WatherDetails country={country} />
     </>
   );
 };
