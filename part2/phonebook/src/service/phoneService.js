@@ -8,7 +8,8 @@ const postPerson = async (person) => {
     url: `${url}/persons`,
     data: person,
   });
-  console.log(response);
+
+  return response.data;
 };
 
 const getAllPhones = async () => {
@@ -25,4 +26,15 @@ const getAllPhones = async () => {
   }
 };
 
-export default { getAllPhones, postPerson };
+const deletePhone = async (id) => {
+  const response = await axios({
+    method: "delete",
+    url: `${url}/persons/${id}`,
+  });
+
+  return response.status === 200;
+};
+
+const phoneService = { getAllPhones, postPerson, deletePhone };
+
+export default phoneService;

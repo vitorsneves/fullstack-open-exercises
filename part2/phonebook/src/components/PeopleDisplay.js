@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import PersonDetails from "./PersonDetails";
 
-const PeopleDisplay = ({ persons }) => {
+const PeopleDisplay = ({ persons, removePerson }) => {
   const [filter, setFilter] = useState("");
 
   const filterPhoneList = () => {
@@ -28,7 +28,11 @@ const PeopleDisplay = ({ persons }) => {
       <h2>Numbers</h2>
       <ul>
         {visiblePersons.map((person) => (
-          <PersonDetails person={person} key={person.name} />
+          <PersonDetails
+            person={person}
+            removePerson={removePerson}
+            key={person.id}
+          />
         ))}
       </ul>
     </>

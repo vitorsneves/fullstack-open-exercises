@@ -19,15 +19,33 @@ const App = () => {
     }
 
     try {
-      const newPerson = await phoneService.postPerson(newPerson);
+      const addedPerson = await phoneService.postPerson(newPerson);
 
-      setPersons((persons) => persons.concat(newPerson));
-    } catch {
+      setPersons((persons) => persons.concat(addedPerson));
+    } catch (e) {
+      console.log(e);
+
       alert(
         "It was not possible to connect with the server. Check your connection"
       );
     }
   };
+
+  const removePerson = async (id) => {
+    if (
+      !window.confirm(`Do you really want to delete ${getPersonById(id).name}`)
+    ) {
+      return;
+    }
+
+    const wasRevomeSuccessful = await phoneService.deletePhone(id);
+
+    if (wasRevomeSuccessful) {
+      setPersons((persons) => persons.filter((person) => person.id !== id));
+    }
+  };
+
+  const getPersonById = (id) => persons.filter((person) => person.id === id)[0];
 
   const isPersonAlreadyAdded = (person) =>
     persons.some((o) => o.name === person.name);
@@ -36,7 +54,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <AddPeopleForm addNewPerson={addNewPerson} />
-      <PeopleDisplay persons={persons} />
+      <PeopleDisplay persons={persons} removePerson={removePerson} />
     </div>
   );
 };
