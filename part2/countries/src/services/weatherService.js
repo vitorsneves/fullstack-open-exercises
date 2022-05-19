@@ -1,5 +1,4 @@
 import axios from "axios";
-import CountryDetails from "../components/CountryDetails";
 
 const url = "http://api.openweathermap.org";
 const api_key = process.env.REACT_APP_API_KEY;
@@ -20,6 +19,7 @@ const getWeather = async (latitude, longitude) => {
   return {
     temperature: data.main.temp - 273,
     wind: data.wind.speed,
+    icon: data.weather[0].icon,
   };
 };
 
