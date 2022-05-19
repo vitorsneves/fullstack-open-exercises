@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+
+import phoneService from "./service/phoneService";
 
 import AddPeopleForm from "./components/AddPeopleForm";
 import PeopleDisplay from "./components/PeopleDisplay";
@@ -8,21 +9,24 @@ const App = () => {
   const [persons, setPersons] = useState([]);
 
   useEffect(() => {
-    const getPersons = async () => {
-      const response = await axios.get("http://localhost:3001/persons");
-      setPersons(response.data);
-    };
-
-    getPersons();
+    phoneService.getAllPhones().then((phones) => setPersons(phones));
   }, []);
 
-  const addNewPerson = (newPerson) => {
+  const addNewPerson = async (newPerson) => {
     if (isPersonAlreadyAdded(newPerson)) {
       alert(`${newPerson.name} is already added to phonebook`);
       return;
     }
 
-    setPersons((persons) => persons.concat(newPerson));
+    try {
+      const newPerson = await phoneService.postPerson(newPerson);
+
+      setPersons((persons) => persons.concat(newPerson));
+    } catch {
+      alert(
+        "It was not possible to connect with the server. Check your connection"
+      );
+    }
   };
 
   const isPersonAlreadyAdded = (person) =>
