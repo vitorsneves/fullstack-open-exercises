@@ -35,6 +35,16 @@ const deletePhone = async (id) => {
   return response.status === 200;
 };
 
-const phoneService = { getAllPhones, postPerson, deletePhone };
+const updateNumber = async (person) => {
+  const response = await axios({
+    method: "put",
+    url: `${url}/persons/${person.id}`,
+    data: person,
+  });
+
+  return response.data;
+};
+
+const phoneService = { getAllPhones, postPerson, deletePhone, updateNumber };
 
 export default phoneService;

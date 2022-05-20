@@ -14,7 +14,7 @@ const App = () => {
 
   const addNewPerson = async (newPerson) => {
     if (isPersonAlreadyAdded(newPerson)) {
-      alert(`${newPerson.name} is already added to phonebook`);
+      updatePerson({ ...newPerson, id: getPersonId(newPerson.name) });
       return;
     }
 
@@ -29,6 +29,26 @@ const App = () => {
         "It was not possible to connect with the server. Check your connection"
       );
     }
+  };
+
+  const updatePerson = async (newPerson) => {
+    if (
+      !window.confirm(
+        `${newPerson.name} is already added to the phone list. Replace the old number with a new one?`
+      )
+    ) {
+      return;
+    }
+
+    phoneService.updateNumber(newPerson);
+
+    setPersons((persons) => {
+      const personsClone = structuredClone(persons);
+      const personsWithoutNewPerson = personsClone.filter(
+        (person) => person.id !== newPerson.id
+      );
+      return personsWithoutNewPerson.concat(newPerson);
+    });
   };
 
   const removePerson = async (id) => {
@@ -46,6 +66,9 @@ const App = () => {
   };
 
   const getPersonById = (id) => persons.filter((person) => person.id === id)[0];
+
+  const getPersonId = (name) =>
+    persons.find((person) => person.name === name).id;
 
   const isPersonAlreadyAdded = (person) =>
     persons.some((o) => o.name === person.name);
