@@ -1,15 +1,23 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 import phoneService from "./service/phoneService";
 
 import AddPeopleForm from "./components/AddPeopleForm";
 import PeopleDisplay from "./components/PeopleDisplay";
+import MessageBox from "./components/MessageBox";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [message, setMessage] = useState({ content: "", wasSuccessful: true });
 
   useEffect(() => {
-    phoneService.getAllPhones().then((phones) => setPersons(phones));
+    phoneService.getAllPhones().then(
+      (phones) => setPersons(phones),
+      () => {
+        showNotConnectedError();
+      }
+    );
   }, []);
 
   const addNewPerson = async (newPerson) => {
@@ -22,12 +30,14 @@ const App = () => {
       const addedPerson = await phoneService.postPerson(newPerson);
 
       setPersons((persons) => persons.concat(addedPerson));
+      updateMessage({
+        content: `added ${addedPerson.name}`,
+        wasSuccessful: true,
+      });
     } catch (e) {
       console.log(e);
 
-      alert(
-        "It was not possible to connect with the server. Check your connection"
-      );
+      showNotConnectedError();
     }
   };
 
@@ -40,15 +50,35 @@ const App = () => {
       return;
     }
 
-    phoneService.updateNumber(newPerson);
+    try {
+      await phoneService.updateNumber(newPerson);
 
-    setPersons((persons) => {
-      const personsClone = structuredClone(persons);
-      const personsWithoutNewPerson = personsClone.filter(
-        (person) => person.id !== newPerson.id
-      );
-      return personsWithoutNewPerson.concat(newPerson);
-    });
+      setPersons((persons) => {
+        const personsClone = structuredClone(persons);
+        const personsWithoutNewPerson = personsClone.filter(
+          (person) => person.id !== newPerson.id
+        );
+        return personsWithoutNewPerson.concat(newPerson);
+      });
+
+      updateMessage({
+        content: `${newPerson.name} was updated`,
+        wasSuccessful: true,
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response.status;
+
+        if (status === 404) {
+          updateMessage({
+            content: `information of ${newPerson.name} was already removed from server`,
+          });
+          return;
+        }
+
+        showNotConnectedError();
+      }
+    }
   };
 
   const removePerson = async (id) => {
@@ -65,6 +95,21 @@ const App = () => {
     }
   };
 
+  const showNotConnectedError = () => {
+    updateMessage({
+      content:
+        "It was not possible to connect with the server. Check your connection",
+      wasSuccessful: false,
+    });
+  };
+
+  const updateMessage = (message) => {
+    setMessage(message);
+    setTimeout(() => {
+      setMessage({ content: "", wasSuccessful: true });
+    }, 5000);
+  };
+
   const getPersonById = (id) => persons.filter((person) => person.id === id)[0];
 
   const getPersonId = (name) =>
@@ -75,6 +120,7 @@ const App = () => {
 
   return (
     <div>
+      <MessageBox message={message} />
       <h2>Phonebook</h2>
       <AddPeopleForm addNewPerson={addNewPerson} />
       <PeopleDisplay persons={persons} removePerson={removePerson} />

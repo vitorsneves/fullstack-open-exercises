@@ -13,17 +13,9 @@ const postPerson = async (person) => {
 };
 
 const getAllPhones = async () => {
-  try {
-    const response = await axios({ method: "get", url: `${url}/persons` });
+  const response = await axios({ method: "get", url: `${url}/persons` });
 
-    return response.data;
-  } catch {
-    alert(
-      "It was not possible to connect with the server. Check your connection"
-    );
-
-    return [];
-  }
+  return response.data;
 };
 
 const deletePhone = async (id) => {
@@ -36,13 +28,11 @@ const deletePhone = async (id) => {
 };
 
 const updateNumber = async (person) => {
-  const response = await axios({
+  await axios({
     method: "put",
     url: `${url}/persons/${person.id}`,
     data: person,
   });
-
-  return response.data;
 };
 
 const phoneService = { getAllPhones, postPerson, deletePhone, updateNumber };
