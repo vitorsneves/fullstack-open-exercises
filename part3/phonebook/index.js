@@ -1,4 +1,5 @@
-import express from 'express'
+import express from 'express';
+import morgan from 'morgan';
 
 const PORT = 3001;
 const baseRoute = '/api';
@@ -29,6 +30,14 @@ let persons = [
 const app = express();
 
 app.use(express.json());
+
+morgan.token("response-object", (request, response) =>
+  request.method == 'POST' && JSON.stringify(request.body)
+);
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :response-object'));
+
+
 
 app.get(baseRoute + '/info', (request, response) => {
   const entries = persons.length;
