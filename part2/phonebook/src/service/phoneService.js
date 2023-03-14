@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const url = "http://localhost:3001";
+const url = "http://localhost:3001/api";
 
 const postPerson = async (person) => {
   const response = await axios({
@@ -24,7 +24,7 @@ const deletePhone = async (id) => {
     url: `${url}/persons/${id}`,
   });
 
-  return response.status === 200;
+  return response.status === 204;
 };
 
 const updateNumber = async (person) => {
