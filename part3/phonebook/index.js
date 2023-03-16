@@ -1,8 +1,11 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import Person from './model/Person.js'
 
-const PORT = process.env.PORT || 3001;
 const baseRoute = '/api';
 
 let persons = [
@@ -40,7 +43,9 @@ morgan.token("response-object", (request, response) =>
   request.method == 'POST' && JSON.stringify(request.body)
 );
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :response-object'));
+app.use(morgan(
+  ':method :url :status :res[content-length] - :response-time ms :response-object'
+));
 
 
 
@@ -57,7 +62,9 @@ app.get(baseRoute + '/info', (request, response) => {
 });
 
 app.get(baseRoute + '/persons', (request, response) => {
-  response.json(persons);
+  Person.find({}).then(result => {
+    response.json(result);
+  });
 });
 
 app.get(baseRoute + '/persons/:id', (request, response) => {
@@ -92,7 +99,9 @@ app.post(baseRoute + '/persons', (request, response) => {
   }
 
   if(persons.find(person => person.name == newPerson.name)) {
-    return response.status(400).json({error: `${newPerson.name} was already added to the phonebook`})
+    return response.status(400).json(
+      {error: `${newPerson.name} was already added to the phonebook`}
+    );
   } 
 
   persons.push({id: generateUniqueId(), ...newPerson});
@@ -108,4 +117,6 @@ const generateUniqueId = () => {
   return maxID + 1;
 };
 
-app.listen(PORT, () => {console.log('server running on port', PORT)});
+app.listen(process.env.PORT, () => {
+  console.log('server running on port', process.env.PORT)
+});

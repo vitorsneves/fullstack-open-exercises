@@ -1,15 +1,10 @@
-import mongoose from 'mongoose'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
-if(!process.argv[2]) {
-  console.log('give the password as as the first argument');
-  process.exit(1);
-}
-
-const password = process.argv[2];
-const url = `mongodb+srv://viniciosneves10:${password}@cluster0.nuvvc6b.mongodb.net/phonebook?retryWrites=true&w=majority`;
+import mongoose from 'mongoose';
 
 mongoose.set('strictQuery', false);
-mongoose.connect(url);
+mongoose.connect(process.env.MONGODB_URI);
 
 const personSchema = new mongoose.Schema({
   name: String,
