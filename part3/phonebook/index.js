@@ -8,29 +8,6 @@ import Person from './model/Person.js'
 
 const baseRoute = '/api';
 
-let persons = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "phone": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "phone": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "phone": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "phone": "39-23-6423122"
-  }
-];
-
 const app = express();
 
 app.use(cors());
@@ -47,43 +24,50 @@ app.use(morgan(
   ':method :url :status :res[content-length] - :response-time ms :response-object'
 ));
 
-
-
-app.get(baseRoute + '/info', (request, response) => {
-  const entries = persons.length;
-  const entriesString = `<p>Phonebook has info for ${entries} people<p>`
-
-  const date = new Date();
-  const dateString = `<p>${date.toLocaleString()}<p>`;
-
-  const entriesAndDate = entriesString.concat(dateString);
-
-  response.end(entriesAndDate);
+app.get(baseRoute + '/info', (request, response, next) => {
+  
+  Person.find({})
+  .then(result => {
+    const entriesString = `<p>Phonebook has info for ${result.length} people<p>`
+  
+    const date = new Date();
+    const dateString = `<p>${date.toLocaleString()}<p>`;
+  
+    const entriesAndDate = entriesString.concat(dateString);
+  
+    response.end(entriesAndDate);
+  })
+  .catch(error => {next(error)});
+  
 });
 
-app.get(baseRoute + '/persons', (request, response) => {
-  Person.find({}).then(result => {
-    response.json(result);
-  });
+app.get(baseRoute + '/persons', async (request, response, next) => {
+  Person.find({})
+    .then(result => { response.json(result) })
+    .catch(error => {next(error)});
 });
 
-app.get(baseRoute + '/persons/:id', (request, response) => {
-  const person = persons.find(person => person.id == request.params.id);
-
-  if(person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
+app.get(baseRoute + '/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(result => {
+      if(result) {
+        response.json(result);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => {next(error)});
 });
 
-app.delete(baseRoute + '/persons/:id', (request, response) => {
-  persons = persons.filter(persons => persons.id != request.params.id);
+app.delete(baseRoute + '/persons/:id', (request, response, next) => {
+  console.log(request.params.id)
 
-  response.status(204).end();
+  Person.findOneAndDelete({_id: request.params.id})
+    .then(result => {console.log(result); response.status(204).end()})
+    .catch(error => {next(error)})
 });
 
-app.post(baseRoute + '/persons', (request, response) => {
+app.post(baseRoute + '/persons', (request, response, next) => {
   const newPerson = request.body;
 
   if(!newPerson.name) {
@@ -99,20 +83,43 @@ app.post(baseRoute + '/persons', (request, response) => {
     phone: newPerson.phone
   });
 
-  person.save().then(result => {response.json(result)});
+  person.save()
+    .then(result => {response.json(result)})
+    .catch(error => {next(error)})
+});
+
+app.put(baseRoute + '/persons/:id', (request, response, next) => {
+  const id = request.params.id;
+
+  const newPerson = {
+    name: request.body.name,
+    phone: request.body.phone
+  };
+
+  Person.findByIdAndUpdate(id, newPerson, {new: true})
+    .then(result => {response.json(result)})
+    .catch(error => {next(error)});
 });
 
 const emptyFieldHandler = (fieldName) => {
   response.status(400).json({error: `${fieldName} field cannot be empty.`});
 }
 
-const generateUniqueId = () => {
-  const maxID = persons.length > 0
-   ? Math.max(...persons.map(person => person.id))
-   : 0;
+const unknownEndpoint = (request, response) => {
+  response.status(404).json({error: 'unkown endpoint'});
+}
 
-  return maxID + 1;
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  if(error.name === 'CastError') {
+    return response.status(400).json({error: 'malformatted id'});
+  }
+
+  next(error);
 };
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
   console.log('server running on port', process.env.PORT)
