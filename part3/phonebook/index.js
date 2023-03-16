@@ -85,10 +85,6 @@ app.delete(baseRoute + '/persons/:id', (request, response) => {
 
 app.post(baseRoute + '/persons', (request, response) => {
   const newPerson = request.body;
-  
-  const emptyFieldHandler = (fieldName) => {
-    response.status(400).json({error: `${fieldName} field cannot be empty.`});
-  }
 
   if(!newPerson.name) {
     return emptyFieldHandler("Name");
@@ -98,16 +94,17 @@ app.post(baseRoute + '/persons', (request, response) => {
     return emptyFieldHandler("phone");
   }
 
-  if(persons.find(person => person.name == newPerson.name)) {
-    return response.status(400).json(
-      {error: `${newPerson.name} was already added to the phonebook`}
-    );
-  } 
+  const person = new Person({
+    name: newPerson.name,
+    phone: newPerson.phone
+  });
 
-  persons.push({id: generateUniqueId(), ...newPerson});
-
-  response.json(newPerson);
+  person.save().then(result => {response.json(result)});
 });
+
+const emptyFieldHandler = (fieldName) => {
+  response.status(400).json({error: `${fieldName} field cannot be empty.`});
+}
 
 const generateUniqueId = () => {
   const maxID = persons.length > 0
